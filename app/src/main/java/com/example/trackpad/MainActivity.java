@@ -20,21 +20,24 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     TextView T;
-    EditText E1, E2;
+    Button su,sd;
     float x = 0f;
     float y = 0f;
     int flag=0;
+    byte[] position=new byte[9];
     private static final int SELECT_DEVICE_REQUEST_CODE = 42;
     private CompanionDeviceManager deviceManager;
     private AssociationRequest pairingRequest;
@@ -47,19 +50,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        E1 = (EditText) findViewById(R.id.editText);
-        E2 = (EditText) findViewById(R.id.editText2);
-        T = (TextView) findViewById(R.id.textview);
+        T = findViewById(R.id.textview);
+        su=findViewById(R.id.button3);
+        sd=findViewById(R.id.button4);
+        for(int i=0;i<=7;i++)
+            position[i]=(byte)0;
         Log.e(width+"x"+height,"Hi");
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!(bluetoothAdapter.isEnabled())) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
-        }
-        try {
-            TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }else
+        {
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         deviceManager = getSystemService(CompanionDeviceManager.class);
         deviceFilter = new BluetoothDeviceFilter.Builder().build();
@@ -96,15 +109,43 @@ public class MainActivity extends AppCompatActivity {
                     float y2 = (float) Math.round(lastYAxis * 100) / 100;
                     if(flag==1)
                         write(dataf(x2,y2));
-                    E1.setText(Float.toString(lastXAxis));
-                    E2.setText(Float.toString(lastYAxis));
                     return true;
                 }
             });
+        su.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                position[8]=(byte)1;
+                for(int i=0;i<=7;i++)
+                    position[i]=(byte)0;
+                if(flag==1)
+                    write(position);
+                return true;
+            }
+        });
+        sd.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                position[8]=(byte)-1;
+                for(int i=0;i<=7;i++)
+                    position[i]=(byte)0;
+                if(flag==1)
+                    write(position);
+                return true;
+            }
+        });
 
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        cancel();
     }
     public byte[] dataf(float x,float y)
     {
+        position[6]=(byte)0;
+        position[7]=(byte)0;
+        position[8]=(byte)0;
         int f1=0;
         int f2=0;
         if(x<0){
@@ -123,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
         int f2y=mY/100;
         int l2x=mX-f2x*100;
         int l2y=mY-f2y*100;
-        byte[] position=new byte[6];
         if(f1==1){
             dX=-dX;
             f2x=-f2x;
@@ -149,14 +189,29 @@ public class MainActivity extends AppCompatActivity {
             // User has chosen to pair with the Bluetooth device.
             final BluetoothDevice deviceToPair =
                     data.getParcelableExtra(CompanionDeviceManager.EXTRA_DEVICE);
+            int flag2 = 0;
             deviceToPair.createBond();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ConnectThread(deviceToPair);
-
+            Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
+            for (BluetoothDevice device : devices) {
+                System.out.println(device.getName());
+                if (device.getAddress().equals(deviceToPair.getAddress())) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ConnectThread(deviceToPair);
+                        }
+                    }, 1000);
+                    flag2 = 1;
                 }
-            },20000);
+            }
+            if (flag2 == 0) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ConnectThread(deviceToPair);
+                    }
+                }, 20000);
+            }
         }
     }
     String TAG = "MainActivity";
@@ -170,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
             // MY_UUID is the app's UUID string, also used in the server code.
-            UUID mUUID = new UUID(0x1112, 0x0000);
+            UUID mUUID = new UUID(0x1111, 0x0000);
             tmp = device.createRfcommSocketToServiceRecord(mUUID);
         } catch (IOException e) {
             Log.e(TAG, "Socket's create() method failed", e);
@@ -180,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
             // Connect to the remote device through the socket. This call blocks
             // until it succeeds or throws an exception.
             mmSocket.connect();
-            System.out.println("Hello");
         } catch (IOException connectException) {
             // Unable to connect; close the socket and return.
             Log.e("", "Couldn't establish Bluetooth connection!");
@@ -191,10 +245,13 @@ public class MainActivity extends AppCompatActivity {
 
     // Closes the client socket and causes the thread to finish.
     public void cancel() {
-        try {
-            mmSocket.close();
+        try{
+            for(int i=0;i<=8;i++)
+                position[i]=(byte)0;
+            write(position);
             mmInStream.close();
             mmOutStream.close();
+            mmSocket.close();
         } catch (IOException e) {
             Log.e(TAG, "Could not close the client socket", e);
         }
@@ -223,9 +280,32 @@ public class MainActivity extends AppCompatActivity {
         mmInStream = tmpIn;
         flag=1;
     }
+    public void leftclick(View view) {
+        if (flag == 1) {
+            position[6] = (byte) 1;
+            for (int i = 0; i <= 5; i++)
+                position[i] = 0;
+            position[7] = 0;
+            position[8]=0;
+            write(position);
+
+        }
+    }
+    public void rightclick(View view) {
+        if (flag == 1) {
+            position[7] = (byte) 1;
+            for (int i = 0; i <= 6; i++)
+                position[i] = 0;
+            position[8]=0;
+            write(position);
+        }
+    }
     public void write(byte[] bytes) {
         try {
             mmOutStream.write(bytes);
+            position[6]=(byte)0;
+            position[7]=(byte)0;
+            position[8]=(byte)0;
         } catch (IOException e) {
             Log.e(TAG2, "Error occurred when sending data", e);
             Bundle bundle = new Bundle();

@@ -5,38 +5,62 @@
     android:layout_height="match_parent"
     tools:context="MainActivity">
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="400dp"
-        android:layout_height="wrap_content"
-        android:hint="Points on X-Axis" />
-
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editText"
-        android:layout_alignStart="@+id/editText"
-        android:layout_alignLeft="@+id/editText"
-        android:layout_alignEnd="@+id/editText"
-        android:layout_alignRight="@+id/editText"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="-4dp"
-        android:layout_marginRight="-4dp"
-        android:hint="Points on Y-Axis" />
-
 
     <TextView
         android:id="@+id/textview"
-        android:layout_width="359dp"
-        android:layout_height="447dp"
+        android:layout_width="398dp"
+        android:layout_height="454dp"
         android:layout_centerInParent="true"
         android:clickable="true"
         android:focusable="true"
-        android:text="Touch to get co-ordinates"
-        android:textSize="20dp" />
+        android:text="TrackPad"
+        android:textSize="20dp"
+        android:visibility="visible"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="183dp"
+        android:layout_height="97dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="218dp"
+        android:layout_marginBottom="32dp"
+        android:onClick="leftclick"
+        android:text="Left Click" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="179dp"
+        android:layout_height="97dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="13dp"
+        android:layout_marginBottom="32dp"
+        android:onClick="rightclick"
+        android:text="Right Click" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="118dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="21dp"
+        android:layout_marginBottom="670dp"
+        android:clickable="true"
+        android:text="Scroll Up" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="605dp"
+        android:clickable="true"
+        android:text="Scroll Down" />
 
 
 </RelativeLayout>
