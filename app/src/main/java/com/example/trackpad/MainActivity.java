@@ -136,11 +136,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-    @Override
-    public void onStop() {
-        super.onStop();
-        cancel();
-    }
     public byte[] dataf(float x,float y)
     {
         position[6]=(byte)0;
@@ -312,5 +307,10 @@ public class MainActivity extends AppCompatActivity {
             bundle.putString("toast",
                     "Couldn't send data to the other device");
         }
+    }
+
+    public void exit(View view) {
+        cancel();
+        finish();
     }
 }

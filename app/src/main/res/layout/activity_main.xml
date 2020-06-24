@@ -42,7 +42,7 @@
 
     <Button
         android:id="@+id/button3"
-        android:layout_width="118dp"
+        android:layout_width="121dp"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
@@ -61,6 +61,17 @@
         android:layout_marginBottom="605dp"
         android:clickable="true"
         android:text="Scroll Down" />
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="306dp"
+        android:layout_marginBottom="675dp"
+        android:onClick="exit"
+        android:text="Exit" />
 
 
 </RelativeLayout>
